@@ -2,31 +2,39 @@
   <div id="BoardSectionComponent">
     <b-card style="max-width: 20rem;"
             class="mb-4"
-            :title="section">
-      <b-card style="max-width: 20rem;"
-              class="mb-4"
-              :header="section">
-        <p class="card-text">
-          Some quick example text to build on the card title and make up the bulk of the card's content.
-        </p>
-        <b-button href="#" variant="primary">Go somewhere</b-button>
-      </b-card>
-      <b-card style="max-width: 20rem;"
-              class="mb-4"
-              :header="section">
-        <p class="card-text">
-          Some quick example text to build on the card title and make up the bulk of the card's content.
-        </p>
-        <b-button href="#" variant="primary">Go somewhere</b-button>
-      </b-card>
+            :header="section"
+            :header-bg-variant="headerColor">
+      <TaskComponent v-for="task in tasks" :key="task['.key']" :task="task"/>
     </b-card>
   </div>
 </template>
 <script>
+import TaskComponent from '@/components/TaskComponent'
 export default {
   name: 'BoardSectionComponent',
 
+  components: {
+    TaskComponent
+  },
+
   props: ['tasks', 'section'],
+
+  computed: {
+    headerColor () {
+      switch (this.section) {
+        case 'Backlog':
+          return 'light'
+        case 'Todo':
+          return 'info'
+        case 'Doing':
+          return 'primary'
+        case 'Done':
+          return 'success'
+        default:
+          return 'light'
+      }
+    }
+  },
 
   data: () => ({
 
