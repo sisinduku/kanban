@@ -21,8 +21,8 @@
     </b-modal>
 
     <!-- Modal Detail Task Component -->
-    <b-modal title="Detail Task" v-model="showDetail">
-      <p>
+    <b-modal title="Detail Task" v-model="isShowDetail" ok-only>
+      <p class="text-left">
         <h3>Title</h3>
         {{currentTask.title}}
         <h3>Description</h3>
@@ -34,6 +34,37 @@
         <h3>Status</h3>
         {{this.currentTaskStatus}}
       </p>
+      <b-container slot="modal-footer">
+        <b-row>
+          <b-col class="text-left">
+            <b-popover v-if="this.currentTask.status !== 0" target="previousPopover" triggers="click">
+              <template slot="title">Are you sure?</template>
+              <p>Mark this task as {{prevTaskStatus}}</p>
+              <b-button size="sm" variant="white">Cancel</b-button>
+              <b-button size="sm" variant="primary" @click="prev">Sure</b-button>
+            </b-popover>
+            <b-button v-if="this.currentTask.status !== 0" variant="warning" id="previousPopover">{{prevTaskStatus}}</b-button>
+          </b-col>
+          <b-col class="text-center">
+            <b-popover target="deletePopover" triggers="click">
+              <template slot="title">Are you sure?</template>
+              <p>Mark this task as </p>
+              <b-button size="sm" variant="white">Cancel</b-button>
+              <b-button size="sm" variant="danger" @click="deleteTask">Sure</b-button>
+            </b-popover>
+            <b-button variant="danger" id="deletePopover">Delete</b-button>
+          </b-col>
+          <b-col class="text-right">
+            <b-popover v-if="this.currentTask.status !== 3" target="nextPopover" triggers="click">
+              <template slot="title">Are you sure?</template>
+              <p>Mark this task as {{nextTaskStatus}}</p>
+              <b-button size="sm" variant="white">Cancel</b-button>
+              <b-button size="sm" variant="primary" @click="next">Sure</b-button>
+            </b-popover>
+            <b-button v-if="this.currentTask.status !== 3" variant="success" id="nextPopover">{{nextTaskStatus}}</b-button>
+          </b-col>
+        </b-row>
+      </b-container>
     </b-modal>
 
     <b-row>
@@ -70,8 +101,18 @@ export default {
 
   computed: {
     ...Vuex.mapGetters([
-      'todos', 'backlog', 'todo', 'doing', 'done', 'currentTask', 'showDetail'
+      'todos', 'backlog', 'todo', 'doing', 'done', 'currentTask'
     ]),
+    isShowDetail: {
+      get: function () {
+        return this.$store.getters.isShowDetail
+      },
+      set: function (newValue) {
+        if (!newValue) {
+          this.$store.commit('toggleDetail')
+        }
+      }
+    },
     currentTaskStatus () {
       switch (this.currentTask.status) {
         case 0:
@@ -84,6 +125,30 @@ export default {
           return 'Done'
         default:
           return 'Backlog'
+      }
+    },
+    prevTaskStatus () {
+      switch (this.currentTask.status) {
+        case 1:
+          return 'Backlog'
+        case 2:
+          return 'To-do'
+        case 3:
+          return 'Doing'
+        default:
+          return 'Backlog'
+      }
+    },
+    nextTaskStatus () {
+      switch (this.currentTask.status) {
+        case 0:
+          return 'To-do'
+        case 1:
+          return 'Doing'
+        case 2:
+          return 'Done'
+        default:
+          return 'Done'
       }
     }
   },
@@ -129,6 +194,22 @@ export default {
       this.description = ''
       this.point = 0
       this.user = ''
+    },
+    closeDetail () {
+      this.$store.commit('toggleDetail')
+    },
+    prev () {
+      todosRef.child(this.currentTask['.key'])
+      .child('status')
+      .set(this.currentTask.status - 1)
+    },
+    next () {
+      todosRef.child(this.currentTask['.key'])
+      .child('status')
+      .set(this.currentTask.status + 1)
+    },
+    deleteTask () {
+      todosRef.child(this.currentTask['.key']).remove()
     }
   },
 

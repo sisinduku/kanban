@@ -12,14 +12,14 @@ export default new Vuex.Store({
   state: {
     todos: [],
     currentTask: {},
-    showDetail: false
+    isShowDetail: false
   },
 
   mutations: {
     ...firebaseMutations,
     toggleDetail: (state, task) => {
-      state.showDetail = !state.showDetail
-      state.currentTask = task
+      state.isShowDetail = !state.isShowDetail
+      state.currentTask = (!task) ? 'null' : task
     }
   },
 
@@ -29,7 +29,7 @@ export default new Vuex.Store({
     todo: state => state.todos.filter(task => task.status === 1),
     doing: state => state.todos.filter(task => task.status === 2),
     done: state => state.todos.filter(task => task.status === 3),
-    showDetail: state => state.showDetail,
+    isShowDetail: state => state.isShowDetail,
     currentTask: state => state.currentTask
   },
 
@@ -37,9 +37,7 @@ export default new Vuex.Store({
     setTodosRef: firebaseAction(({
       bindFirebaseRef
     }, ref) => {
-      bindFirebaseRef('todos', ref, {
-        wait: true
-      })
+      bindFirebaseRef('todos', ref)
     })
   }
 })

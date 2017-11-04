@@ -34,11 +34,7 @@ export default {
           return 'light'
       }
     }
-  },
-
-  data: () => ({
-
-  })
+  }
 }
 </script>
 <style scoped>
